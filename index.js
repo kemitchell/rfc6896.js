@@ -42,12 +42,18 @@ module.exports = function(
   TID = new Buffer(TID, 'utf8')
 
   function outboundTransform(plain_text_cookie_value) {
-    var IV, ATIME, DATA, AUTHTAG, SCS_cookie_value
+    var SCS_cookie_value
+    var DATA, ATIME, IV, AUTHTAG
+    var eDATA, eATIME, eTID, eIV
     IV = RAND()
     ATIME = NOW()
     DATA = Enc(Comp(plain_text_cookie_value), IV)
-    AUTHTAG = HMAC(Box(e(DATA), e(ATIME), e(TID), e(IV)))
-    SCS_cookie_value = Box(e(DATA), e(ATIME), e(TID), e(IV), e(AUTHTAG))
+    eDATA = e(DATA)
+    eATIME = e(ATIME)
+    eTID = e(TID)
+    eIV = e(IV)
+    AUTHTAG = HMAC(Box(eDATA, eATIME, eTID, eIV))
+    SCS_cookie_value = Box(eDATA, eATIME, eTID, eIV, e(AUTHTAG))
     return SCS_cookie_value }
 
   function split_fields(input) {
