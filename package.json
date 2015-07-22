@@ -5,6 +5,13 @@
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "repository": "kemitchell/rfc6896.js",
   "license": "ISC",
+  "keywords": [
+    "RFC",
+    "cookies",
+    "cryptogrpahy",
+    "security",
+    "session"
+  ],
   "engines": {
     "node": ">=0.12.0"
   },
