@@ -1,10 +1,17 @@
 {
   "name": "rfc6896",
-  "version": "0.0.0",
   "description": "RFC 6896 implementation for Node.js",
+  "version": "0.0.0",
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
-  "repository": "kemitchell/rfc6896.js",
-  "license": "ISC",
+  "dependencies": {
+    "base64-js": "0.0.8"
+  },
+  "devDependencies": {
+    "tape": "~4.0.1"
+  },
+  "engines": {
+    "node": ">=0.12.0"
+  },
   "keywords": [
     "RFC",
     "cookies",
@@ -12,15 +19,8 @@
     "security",
     "session"
   ],
-  "engines": {
-    "node": ">=0.12.0"
-  },
-  "dependencies": {
-    "base64-js": "0.0.8"
-  },
-  "devDependencies": {
-    "tape": "~4.0.1"
-  },
+  "license": "ISC",
+  "repository": "kemitchell/rfc6896.js",
   "scripts": {
     "test": "tape test.js"
   }
