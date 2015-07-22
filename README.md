@@ -15,7 +15,7 @@ var scs = require('rfc6896')(
 	tid, // string
 	encipher, // function(x, iv)
 	decipher, // function(x, iv)
-	hmac, // function(x, iv)
+	hmac, // function(x)
 	session_max_age, // seconds
 	random, // function()
 	compress, // function(x)
