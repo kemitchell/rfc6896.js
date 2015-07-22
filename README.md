@@ -28,3 +28,5 @@ typeof scs.outboundTransform // => 'function'
 typeof scs.inboundTransform // => 'function'
 // Takes a string cookie value argument.
 ```
+
+Neither transform function references `this`.
