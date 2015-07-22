@@ -1,7 +1,7 @@
 {
   "name": "rfc6896",
   "version": "0.0.0",
-  "description": "",
+  "description": "RFC 6896 implementation for Node.js",
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "repository": "kemitchell/rfc6896.js",
   "license": "ISC",
