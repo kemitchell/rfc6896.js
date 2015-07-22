@@ -1,10 +1,28 @@
-var FRAMING_SYMBOL = '|'
+// This implementation tracks the RFC as closely as possible, including the
+// naming of variables and functions. See http://tools.ietf.org/html/rfc6896
 
+// Identity function for use in lieu of compression and decompression
+// functions.
 function identity(argument) {
   return argument }
 
+// Framing
+var FRAMING_SYMBOL = '|'
+
 function Box() {
   return Array.prototype.slice.call(arguments).join(FRAMING_SYMBOL) }
+
+function split_fields(input) {
+  var split = input.split(FRAMING_SYMBOL)
+  if (split.length === 5) {
+    return {
+      eDATA: split[0],
+      eATIME: split[1],
+      eTID: split[2],
+      eIV: split[3],
+      eAUTHTAG: split[4] } }
+  else {
+    return false } }
 
 // Base64 Encoder
 function e(argument) {
@@ -30,12 +48,15 @@ function d(argument) {
     throw new Error('Invalid base64 string') }
   return new Buffer(string, 'base64') }
 
+// Seconds since epoch, as a decimal string.
+// The RFC as released said hex, but errata corect to decimal.
 function NOW() {
   return '' + Math.floor(Date.now() / 1000) }
 
 module.exports = function(
     TID, Enc, Dec, HMAC, session_max_age, RAND, Comp, Uncomp) {
 
+  // If no compression functions are provided, use the identity function.
   Comp = !!Comp ? Comp : identity
   Uncomp = !!Uncomp ? Uncomp : identity
 
@@ -48,25 +69,15 @@ module.exports = function(
     IV = RAND()
     ATIME = NOW()
     DATA = Enc(Comp(plain_text_cookie_value), IV)
+    // Cache encoded values, rather than encode them twice.
     eDATA = e(DATA)
     eATIME = e(ATIME)
     eTID = e(TID)
     eIV = e(IV)
+    // Caching ends here. Back to the RFC.
     AUTHTAG = HMAC(Box(eDATA, eATIME, eTID, eIV))
     SCS_cookie_value = Box(eDATA, eATIME, eTID, eIV, e(AUTHTAG))
     return SCS_cookie_value }
-
-  function split_fields(input) {
-    var split = input.split(FRAMING_SYMBOL)
-    if (split.length === 5) {
-      return {
-        eDATA: split[0],
-        eATIME: split[1],
-        eTID: split[2],
-        eIV: split[3],
-        eAUTHTAG: split[4] } }
-    else {
-      return false } }
 
   function is_available(tid_prime) {
     return tid_prime.equals(TID) }
@@ -75,12 +86,15 @@ module.exports = function(
     var split, eDATA, eATIME, eTID, eIV, eAUTHTAG, tag
     var tid_prime, tag_prime, atime_prime, iv_prime, data_prime
     var state
+    // If the split isn't ok, it returns false.
     if (split = split_fields(SCS_cookie_value)) {
+      // Replicate the RFC's splice semantics.
       eDATA = split.eDATA
       eATIME = split.eATIME
       eTID = split.eTID
       eIV = split.eIV
       eAUTHTAG = split.eAUTHTAG
+      // Frame split ends here. Back to the RFC.
       tid_prime = d(eTID)
       if (is_available(tid_prime)) {
         tag_prime = d(eAUTHTAG)
@@ -92,6 +106,8 @@ module.exports = function(
             data_prime = d(eDATA)
             state = Uncomp(Dec(data_prime, iv_prime))
             return state }
+          // Response to invalid cookies, including discarding PDU, is left to
+          // client code.
           else {
             throw new Error('expired') } }
         else {
