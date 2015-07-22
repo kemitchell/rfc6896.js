@@ -11,7 +11,16 @@ $ npm install --save rfc6896
 Then:
 
 ```javascript
-var scs = require('rfc6896')
+var scs = require('rfc6896')(
+	tid, // string
+	encipher, // function(x, iv)
+	decipher, // function(x, iv)
+	hmac, // function(x, iv)
+	session_max_age, // seconds
+	random, // function()
+	compress, // function(x)
+	decompress // function(x)
+)
 
 typeof scs.outboundTransform // => 'function'
 // Takes a Buffer plaintext argument.
