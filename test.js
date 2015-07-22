@@ -1,10 +1,11 @@
 var crypto = require('crypto')
 
+// The minimum requirements of the RFC
 var CIPHER = 'AES-128-CBC'
-var HMAC = 'SHA1'
-var TID = CIPHER + '-' + HMAC
-
 var CIPHER_KEY = crypto.randomBytes(16)
+var HMAC = 'SHA1'
+var HMAC_KEY = 'hmac_key'
+var TID = CIPHER + '-' + HMAC
 
 function encipher(argument, iv) {
   var cipher = crypto.createCipheriv(CIPHER, CIPHER_KEY, iv)
@@ -17,7 +18,7 @@ function decipher(argument, iv) {
   return cipher.final() }
 
 function hmac(argument, iv) {
-  var hmac = crypto.createHmac(HMAC, 'hmac_key')
+  var hmac = crypto.createHmac(HMAC, HMAC_KEY)
   hmac.update(argument)
   return hmac.digest() }
 
