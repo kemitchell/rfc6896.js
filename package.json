@@ -4,7 +4,7 @@
   "description": "",
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "repository": "kemitchell/rfc6896.js",
-  "license": "MIT",
+  "license": "ISC",
   "engines": {
     "node": ">=0.12.0"
   },
