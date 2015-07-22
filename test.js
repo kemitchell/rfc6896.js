@@ -6,6 +6,7 @@ var CIPHER_KEY = crypto.randomBytes(16)
 var HMAC = 'SHA1'
 var HMAC_KEY = 'hmac_key'
 var TID = CIPHER + '-' + HMAC
+var MAX_AGE = 1
 
 function encipher(argument, iv) {
   var cipher = crypto.createCipheriv(CIPHER, CIPHER_KEY, iv)
@@ -25,8 +26,10 @@ function hmac(argument, iv) {
 function random() {
   return crypto.randomBytes(16) }
 
+var scs = require('./')(TID, encipher, decipher, hmac, MAX_AGE, random)
+
 require('tape')('rfc6896', function(test) {
-  var scs = require('./')(TID, encipher, decipher, hmac, 300, random)
+  test.plan(3)
 
   var plaintext = 'fee fi fo fum'
   var plaintextBuffer = new Buffer(plaintext, 'utf8')
@@ -46,4 +49,13 @@ require('tape')('rfc6896', function(test) {
           plaintextBuffer))),
     'plaintext round-trip')
 
-  test.end() })
+  var cookieValue = scs.outboundTransform(plaintextBuffer)
+
+  setTimeout(
+    function() {
+      test.throws(
+        function() {
+          scs.inboundTransform(cookieValue) },
+        /expired/,
+        'cookie expires after session_max_age') },
+    MAX_AGE * 2 * 1000) })

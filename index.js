@@ -66,7 +66,7 @@ function d(argument) {
 // Seconds since epoch, as a decimal string.
 // The RFC as released said hex, but errata corect to decimal.
 function NOW() {
-  return '' + Math.floor(Date.now() / 1000) }
+  return Math.floor(Date.now() / 1000) }
 
 module.exports = function(
     TID, Enc, Dec, HMAC, session_max_age, RAND, Comp, Uncomp) {
@@ -82,7 +82,7 @@ module.exports = function(
     var DATA, ATIME, IV, AUTHTAG
     var eDATA, eATIME, eTID, eIV
     IV = RAND()
-    ATIME = NOW()
+    ATIME = NOW().toString()
     DATA = Enc(Comp(plain_text_cookie_value), IV)
     // Cache encoded values, rather than encode them twice.
     eDATA = e(DATA)
