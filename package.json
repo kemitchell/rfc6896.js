@@ -1,7 +1,7 @@
 {
   "name": "rfc6896",
   "description": "RFC 6896 Secure Cookie Sessions for Node.js",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "devDependencies": {
     "tape": "~4.0.1"
