@@ -1,0 +1,94 @@
+var FRAMING_SYMBOL = '|'
+
+function identity(argument) {
+  return argument }
+
+function Box() {
+  return Array.prototype.slice.call(arguments).join(FRAMING_SYMBOL) }
+
+// Base64 Encoder
+function e(argument) {
+  var base64String = new Buffer(argument, 'utf8').toString('base64')
+  var equalsIndex = base64String.indexOf('=')
+  if (equalsIndex > -1) {
+    base64String = base64String.slice(0, equalsIndex) }
+  return base64String
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_') }
+
+// Base64 Decoder
+function d(argument) {
+  var string = argument
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+  var modulus = string.length % 4
+  if (modulus === 2) {
+    string += '==' }
+  else if (modulus === 3) {
+    string += '=' }
+  else if (modulus !== 0) {
+    throw new Error('Invalid base64 string') }
+  return new Buffer(string, 'base64') }
+
+function NOW() {
+  return '' + Math.floor(Date.now() / 1000) }
+
+module.exports = function(
+    TID, Enc, Dec, HMAC, session_max_age, RAND, Comp, Uncomp) {
+
+  Comp = !!Comp ? Comp : identity
+  Uncomp = !!Uncomp ? Uncomp : identity
+
+  TID = new Buffer(TID, 'utf8')
+
+  function outboundTransform(plain_text_cookie_value) {
+    var IV, ATIME, DATA, AUTHTAG, SCS_cookie_value
+    IV = RAND()
+    ATIME = NOW()
+    DATA = Enc(Comp(plain_text_cookie_value), IV)
+    AUTHTAG = HMAC(Box(e(DATA), e(ATIME), e(TID), e(IV)))
+    SCS_cookie_value = Box(e(DATA), e(ATIME), e(TID), e(IV), e(AUTHTAG))
+    return SCS_cookie_value }
+
+  function split_fields(input) {
+    var split = input.split(FRAMING_SYMBOL)
+    if (split.length === 5) {
+      return {
+        eDATA: split[0],
+        eATIME: split[1],
+        eTID: split[2],
+        eIV: split[3],
+        eAUTHTAG: split[4] } }
+    else {
+      return false } }
+
+  function is_available(tid_prime) {
+    return tid_prime.equals(TID) }
+
+  function inboundTransform(SCS_cookie_value) {
+    var split, eDATA, eATIME, eTID, eIV, eAUTHTAG
+    var tid_prime, tag_prime, tag, atime_prime, iv_prime, data_prime, state
+    if (split = split_fields(SCS_cookie_value)) {
+      tid_prime = d(split.eTID)
+      if (is_available(tid_prime)) {
+        tag_prime = d(split.eAUTHTAG)
+        tag = HMAC(Box(split.eDATA, split.eATIME, split.eTID, split.eIV))
+        if (tag.equals(tag_prime)) {
+          atime_prime = d(split.eATIME)
+          if (NOW() - parseInt(atime_prime) <= session_max_age) {
+            iv_prime = d(split.eIV)
+            data_prime = d(split.eDATA)
+            state = Uncomp(Dec(data_prime, iv_prime))
+            return state }
+          else {
+            throw new Error('expired') } }
+        else {
+          throw new Error('tag mismatch') } }
+      else {
+        throw new Error('TID not available') } }
+    else {
+      throw new Error('split not ok') } }
+
+  return {
+    outboundTransform: outboundTransform,
+    inboundTransform: inboundTransform } }

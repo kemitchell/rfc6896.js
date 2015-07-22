@@ -1,0 +1,20 @@
+{
+  "name": "rfc6896",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
+  "repository": "kemitchell/rfc6896.js",
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "dependencies": {
+    "base64-js": "0.0.8"
+  },
+  "devDependencies": {
+    "tape": "~4.0.1"
+  },
+  "scripts": {
+    "test": "tape test.js"
+  }
+}
