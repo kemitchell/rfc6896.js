@@ -1,4 +1,4 @@
-RFC 6896 (Secure Cookie Sessions) implementation for Node.js
+RFC 6896 Secure Cookie Sessions for Node.js
 
 A pair of transform functions. Takes your choice of cryptographic primitives. Hews closely to the language of the RFC.
 
