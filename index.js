@@ -66,18 +66,24 @@ module.exports = function(
     return tid_prime.equals(TID) }
 
   function inboundTransform(SCS_cookie_value) {
-    var split, eDATA, eATIME, eTID, eIV, eAUTHTAG
-    var tid_prime, tag_prime, tag, atime_prime, iv_prime, data_prime, state
+    var split, eDATA, eATIME, eTID, eIV, eAUTHTAG, tag
+    var tid_prime, tag_prime, atime_prime, iv_prime, data_prime
+    var state
     if (split = split_fields(SCS_cookie_value)) {
-      tid_prime = d(split.eTID)
+      eDATA = split.eDATA
+      eATIME = split.eATIME
+      eTID = split.eTID
+      eIV = split.eIV
+      eAUTHTAG = split.eAUTHTAG
+      tid_prime = d(eTID)
       if (is_available(tid_prime)) {
-        tag_prime = d(split.eAUTHTAG)
-        tag = HMAC(Box(split.eDATA, split.eATIME, split.eTID, split.eIV))
+        tag_prime = d(eAUTHTAG)
+        tag = HMAC(Box(eDATA, eATIME, eTID, eIV))
         if (tag.equals(tag_prime)) {
-          atime_prime = d(split.eATIME)
+          atime_prime = d(eATIME)
           if (NOW() - parseInt(atime_prime) <= session_max_age) {
-            iv_prime = d(split.eIV)
-            data_prime = d(split.eDATA)
+            iv_prime = d(eIV)
+            data_prime = d(eDATA)
             state = Uncomp(Dec(data_prime, iv_prime))
             return state }
           else {
