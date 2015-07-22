@@ -22,15 +22,15 @@ function hmac(argument, iv) {
   hmac.update(argument)
   return hmac.digest() }
 
-function rand() {
+function random() {
   return crypto.randomBytes(16) }
 
 require('tape')('rfc6896', function(test) {
-  var scs = require('./')(TID, encipher, decipher, hmac, 300, rand)
+  var scs = require('./')(TID, encipher, decipher, hmac, 300, random)
 
   var plaintext = 'fee fi fo fum'
   var plaintextBuffer = new Buffer(plaintext, 'utf8')
-  var initializationVector = rand()
+  var initializationVector = random()
 
   test.ok(
     plaintextBuffer.equals(
@@ -44,6 +44,6 @@ require('tape')('rfc6896', function(test) {
       scs.inboundTransform(
         scs.outboundTransform(
           plaintextBuffer))),
-    'plaintext round trip')
+    'plaintext round-trip')
 
   test.end() })
