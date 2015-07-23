@@ -16,8 +16,7 @@
 //
 // SPDX: ISC
 
-// Identity function for use in lieu of compression and decompression
-// functions.
+// Identity function for use in lieu of compression functions.
 function identity(argument) {
   return argument }
 
@@ -44,9 +43,9 @@ function NOW() {
 module.exports = function(
     TID, Enc, Dec, HMAC, session_max_age, RAND, Comp, Uncomp) {
 
-  // If no compression functions are provided, use the identity function.
-  Comp = !!Comp ? Comp : identity
-  Uncomp = !!Uncomp ? Uncomp : identity
+  // If no compression functions provided, use the identity function.
+  Comp = ( !!Comp ? Comp : identity )
+  Uncomp = ( !!Uncomp ? Uncomp : identity )
 
   TID = new Buffer(TID, 'utf8')
 
@@ -73,7 +72,7 @@ module.exports = function(
   function inboundTransform(SCS_cookie_value) {
     var split, eDATA, eATIME, eTID, eIV, eAUTHTAG, tag
     var tid_prime, tag_prime, atime_prime, iv_prime, data_prime
-    var state
+    var state, age
     // If the split isn't ok, it returns false.
     if (split = split_fields(SCS_cookie_value)) {
       // Replicate the RFC's splice semantics.
@@ -89,13 +88,14 @@ module.exports = function(
         tag = HMAC(Box(eDATA, eATIME, eTID, eIV))
         if (tag.equals(tag_prime)) {
           atime_prime = d(eATIME)
-          if (NOW() - parseInt(atime_prime.toString()) <= session_max_age) {
+          age = NOW() - parseInt(atime_prime.toString())
+          if (age <= session_max_age) {
             iv_prime = d(eIV)
             data_prime = d(eDATA)
             state = Uncomp(Dec(data_prime, iv_prime))
             return state }
-          // Response to invalid cookies, including discarding PDU, is left to
-          // client code.
+          // Response to invalid cookies, including discarding PDU, is
+          // left to client code.
           else {
             throw new Error('expired') } }
         else {
