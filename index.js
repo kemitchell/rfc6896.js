@@ -29,15 +29,7 @@ function Box() {
 
 function split_fields(input) {
   var split = input.split(FRAMING_SYMBOL)
-  if (split.length === 5) {
-    return {
-      eDATA: split[0],
-      eATIME: split[1],
-      eTID: split[2],
-      eIV: split[3],
-      eAUTHTAG: split[4] } }
-  else {
-    return false } }
+  return ( split.length === 5 ? split : false ) }
 
 // RFC 4648 URL-safe Base64
 var base64 = require('urlsafe-base64')
@@ -85,11 +77,11 @@ module.exports = function(
     // If the split isn't ok, it returns false.
     if (split = split_fields(SCS_cookie_value)) {
       // Replicate the RFC's splice semantics.
-      eDATA = split.eDATA
-      eATIME = split.eATIME
-      eTID = split.eTID
-      eIV = split.eIV
-      eAUTHTAG = split.eAUTHTAG
+      eDATA = split[0]
+      eATIME = split[1]
+      eTID = split[2]
+      eIV = split[3]
+      eAUTHTAG = split[4]
       // Frame split ends here. Back to the RFC.
       tid_prime = d(eTID)
       if (is_available(tid_prime)) {
